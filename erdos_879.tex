@@ -1,0 +1,636 @@
+\documentclass[11pt,reqno]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1.2in]{geometry}
+\usepackage{amssymb,mathtools,booktabs,enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\hypersetup{pdftitle={On a problem of Erdos and van Lint on sums of pairwise coprime integers}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem*{hypothesis}{Hypothesis LS($\theta$)}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\numberwithin{equation}{section}
+
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cS}{\mathcal{S}}
+\DeclareMathOperator{\li}{li}
+
+\begin{document}
+
+\title[A problem of Erd\H{o}s and van Lint]{On a problem of Erd\H{o}s and van Lint\\ on sums of pairwise coprime integers}
+\date{25 November 2026}
+
+\begin{abstract}
+Let $G(n)$ be the largest sum of a set of pairwise coprime positive integers not exceeding $n$, and let $H(n)=\sum_{p<n}p+n\pi(\sqrt n)$. Erd\H{o}s reported that his argument with van Lint gives $H(n)-n^{3/2-c}<G(n)<H(n)$ for some $c>0$ and all large $n$, and asked whether $G(n)>H(n)-n^{1+o(1)}$. We show that $H(n)-G(n)$ is bounded above and below in terms of an explicit integral which measures how well the primes just below $\sqrt n$ can be matched with the primes just above $\sqrt n$. Using the Riemann hypothesis, which is now a theorem, we deduce that $H(n)-G(n)\ll n^{9/8}(\log n)^{5/2}$ for every $n$, that $H(n)-G(n)\ll n(\log n)^6$ for almost all $n$, and that the question of Erd\H{o}s is equivalent to a statement about the primes in the interval $[\sqrt n/8,8\sqrt n]$. That statement, and hence an affirmative answer for every $n$, follows from a version of Selberg's mean value estimate for primes in short intervals in which the average is taken over ranges of length $\sqrt x$ in place of $x$; the same estimate for ranges of length $x^{1-\theta}$, $0\le\theta\le\frac12$, gives $H(n)-G(n)\ll n^{9/8-\theta/4+\eps}$ for every $n$. The proofs have been checked in the Lean proof assistant, taking as given the Riemann hypothesis and its two classical consequences due to von Koch and Selberg.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+\subsection{The problem}
+Call a set $S\subseteq\{1,\dots,n\}$ \emph{admissible} if its elements are pairwise coprime, and put
+\[
+ G(n)=\max_{S\ \mathrm{admissible}}\ \sum_{a\in S}a .
+\]
+The primes up to $n$ together with $1$ form an admissible set, and one does better by replacing a prime $p\le\sqrt n$ and a prime $q\in(\sqrt n,n/p]$ by their product. In this way Erd\H{o}s and van Lint \cite{EvL} showed that $G(n)=\sum_{p<n}p+(1+o(1))\,n\,\pi(\sqrt n)$. Let
+\[
+ H(n)=\sum_{p<n}p+n\,\pi(\sqrt n).
+\]
+Erd\H{o}s reported in \cite[p.~120]{Er84} that the argument of \cite{EvL} gives
+\begin{equation}\label{eq:evl}
+ H(n)-n^{3/2-c}<G(n)<H(n)
+\end{equation}
+for some constant $c>0$ and all sufficiently large $n$, that $(H(n)-G(n))/n\to\infty$, and that ``if we make plausible (but hopeless) assumptions about the distribution of primes'' then $G(n)>H(n)-n^{1+\eps}$ for every $\eps>0$ and all $n>n_0(\eps)$. The assumptions are not stated. Whether
+\begin{equation}\label{eq:question}
+ G(n)>H(n)-n^{1+o(1)}
+\end{equation}
+holds is the first part of Problem~879 in Bloom's database of Erd\H{o}s problems \cite{Bl}; see also \cite{Er98}. (In \cite{Er84} the sum defining $H(n)$ extends over $p\le n$, which changes $H(n)$ by at most $n$ and is immaterial for \eqref{eq:question}.)
+
+\subsection{Results}
+Throughout, $p$ and $q$ denote primes, $n\ge2$ is an integer and $X=\sqrt n$. For real numbers $X\le u\le v$ we put
+\begin{equation}\label{eq:W}
+ A_n(u,v)=\#\{p\le X:\ u<n/p\le v\},\qquad
+ W_n(u)=\max_{u\le v\le 4u}\bigl(A_n(u,v)-\pi(v)+\pi(u)\bigr).
+\end{equation}
+Thus $W_n(u)\ge0$ is the largest surplus, over the intervals $(u,v]$, of the reflected primes $n/p$ over the primes. It is a step function of $u$ which vanishes for $u\ge n/2$. Our first result shows that $W_n$ governs $H(n)-G(n)$.
+
+\begin{theorem}\label{thm:twosided}
+For every integer $n\ge2$,
+\[
+ \frac n4\int_{\sqrt n}^{n^{2/3}/4}W_n(u)\,\frac{\dd u}{u}-n-1
+ \ \le\ H(n)-G(n)\ \le\
+ 2n\int_{\sqrt n}^{n/2}W_n(u)\,\frac{\dd u}{u}+n\sum_{p\le\sqrt n}\frac1p+n,
+\]
+where an integral over an empty range is to be read as $0$.
+\end{theorem}
+
+By Mertens' theorem, the last two terms on the right are $n\log\log n+O(n)$. The upper bound is obtained from the greedy matching of Erd\H{o}s and van Lint: we show in Lemma~\ref{lem:queue} that $W_n(u)$ is exactly the number of primes $p\le X$ with $n/p>u$ which that matching has not paired with a prime exceeding $u$. The lower bound expresses the fact that an admissible set has very little freedom near the diagonal: an element whose least prime factor $p$ lies in $(n^{1/3},\sqrt n\,]$ is $p$, $p^2$, or $p$ times one other prime, and Hall's condition then forces the same deficit on every admissible set.
+
+For the analysis of $W_n$ it is convenient to separate the range close to $\sqrt n$, and we write
+\[
+ I(n)=\int_{\sqrt n}^{2\sqrt n}W_n(u)\,\frac{\dd u}{u}.
+\]
+The Riemann hypothesis (RH) for $\zeta(s)$ was proved by Alp\"oge \cite{Al}, and the proof has been verified formally \cite{Su}. It enters the next theorem through two classical consequences, von Koch's bound for $\pi(y)-\li(y)$ and Selberg's mean value estimate for primes in short intervals; these are stated as \eqref{eq:vonkoch} and \eqref{eq:selberg} in Section~\ref{sec:mean}.
+
+\begin{theorem}\label{thm:rh}
+For all integers $n\ge3$ and $N\ge2$,
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=*]
+\item $\displaystyle\int_{2\sqrt n}^{n/2}W_n(u)\,\frac{\dd u}{u}\ll(\log n)^5$;
+\item $I(n)\ll n^{1/8}(\log n)^{5/2}$;
+\item $\displaystyle\sum_{N<n\le2N}I(n)\ll N(\log N)^5$.
+\end{enumerate}
+\end{theorem}
+
+\begin{corollary}\label{cor:rh}\leavevmode
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=*]
+\item For $n\ge2^{18}$,
+\[
+ \frac n4\,I(n)-n-1\ \le\ H(n)-G(n)\ \le\ 2n\,I(n)+O\bigl(n(\log n)^5\bigr).
+\]
+In particular, for any infinite set $\mathcal A$ of positive integers, \eqref{eq:question} holds along $\mathcal A$ if and only if $I(n)\le n^{o(1)}$ along $\mathcal A$.
+\item $H(n)-G(n)\ll n^{9/8}(\log n)^{5/2}$ for every $n\ge3$.
+\item For $N\ge3$ and $\lambda\ge1$, the number of integers $n$ with $3\le n\le N$ and $H(n)-G(n)>\lambda\,n(\log n)^5$ is $O(N/\lambda)$. In particular $H(n)-G(n)\le n(\log n)^6$ for all but $O(N/\log N)$ integers $n\le N$.
+\end{enumerate}
+\end{corollary}
+
+Part~(b) replaces the exponent $3/2-c$ in \eqref{eq:evl} by $9/8$, and part~(c) answers the question \eqref{eq:question} affirmatively for almost all $n$. By part~(a), the question for every $n$ is a question about the primes between $\sqrt n/8$ and $8\sqrt n$ alone.
+
+The proof of Theorem~\ref{thm:rh} compares two effects. If $u=X(1+\tau)$ with $0<\tau\le1$, then the expected number of primes in $(u,ue^s]$ exceeds the expected number of reflected primes there by at least a constant multiple of $Xs(\tau+s)/\log n$ (Lemma~\ref{lem:drift}). Against this drift stand the fluctuations of the two prime counts, which are controlled pointwise by von Koch's bound and in mean square by Selberg's estimate \cite{Se}. Selberg's estimate averages over a full dyadic range, whereas for a single $n$ the points $u$ at relative distance about $\tau$ from $X$ fill a range of length only $\tau X$; the two bounds available for that band are $\tau\sqrt X$ and $1/\tau$, up to logarithms, and they balance at $\tau=X^{-1/4}$. This is the source of the exponent $1/8$ in~(ii). When one averages over $n$, the band moves across a full dyadic range and the loss disappears, which gives~(iii). In Remark~\ref{rem:limit} we show that the exponent $1/8$ cannot be improved by any argument which uses only the sizes of these two estimates.
+
+What is missing for a single $n$ is therefore a form of Selberg's estimate over short ranges. Let $\vartheta(y)=\sum_{p\le y}\log p$.
+
+\begin{hypothesis}
+Let $0\le\theta\le\frac12$. For every $\eps>0$ there is a constant $C(\eps)$ such that
+\[
+ \int_x^{x(1+\eta)}\bigl(\vartheta(y+\delta y)-\vartheta(y)-\delta y\bigr)^2\,\dd y\ \le\ C(\eps)\,\delta\,\eta\,x^{2+\eps}
+\]
+for all $x\ge2$, all $\eta$ with $x^{-\theta}\le\eta\le1$, and all $0<\delta\le1$.
+\end{hypothesis}
+
+The hypothesis becomes stronger as $\theta$ increases. Hypothesis~LS($0$) concerns $\eta=1$ only, and it holds, with a power of $\log x$ in place of $x^\eps$, by Selberg's theorem \cite{Se,SV,CHD}. We write LS for LS($\frac12$). Hypothesis~LS is the analogue, for intervals of proportional length, of the bound (1.12) of Languasco, Perelli and Zaccagnini \cite{LPZ}. It follows from the pointwise bound $\psi(y+h)-\psi(y)-h\ll_\eps h^{1/2}y^\eps$ for $1\le h\le y$, and hence from the hypothesis $H(0)$ of \cite{LPZ}, a uniform form of an extended pair correlation conjecture for the zeros of $\zeta$; see Section~\ref{sec:ls}.
+
+\begin{theorem}\label{thm:ls}
+Let $0\le\theta\le\frac12$ and assume Hypothesis~LS($\theta$). Then $I(n)\ll_\eps n^{(1-2\theta)/8+\eps}$ for every $\eps>0$, and consequently
+\[
+ H(n)-G(n)\ll_\eps n^{9/8-\theta/4+\eps}.
+\]
+In particular, under Hypothesis~LS, and hence under the hypothesis $H(0)$ of \cite{LPZ}, \eqref{eq:question} holds for every $n$.
+\end{theorem}
+
+For $\theta=0$ this is Corollary~\ref{cor:rh}(b), apart from the factor $n^\eps$. Every extension of Selberg's estimate to averages over ranges shorter than $x$ therefore improves the exponent $9/8$, and ranges of length $\sqrt x$ answer the question of Erd\H{o}s. No value $\theta>0$ is known to follow from RH: by Proposition~\ref{prop:gaps}, Hypothesis~LS($\theta$) implies that consecutive primes $p<p'$ satisfy $p'-p\ll_\eps p^{(1-\theta)/2+\eps}$, whereas RH is only known to give Cram\'er's bound $p'-p\ll\sqrt p\,\log p$ \cite{Cr,CMS}.
+
+We do not know which assumptions Erd\H{o}s had in mind. Corollary~\ref{cor:rh}(a) shows that \eqref{eq:question} is itself a statement about primes in short intervals near $\sqrt n$, so that some hypothesis of this kind cannot be avoided.
+
+\subsection{Earlier work}
+The greedy matching is due to Erd\H{o}s and van Lint \cite{EvL}, who used it with the prime number theorem. A working report by White \cite{Wh} reformulates $G(n)$ as a weighted matching problem on sets of primes, computes $G(n)$ exactly for several $n\le5\cdot10^5$, and observes that \eqref{eq:question} would follow from the existence of a matching $p\mapsto q_p$ with $\sum_p(n-pq_p)\le n^{1+o(1)}$; see also the computations of Rafik in \cite{Bl}. We are not aware of earlier results in the direction of Theorems~\ref{thm:twosided}--\ref{thm:ls}. The second part of Problem~879, on the number of prime factors of the elements of an extremal set, is not considered here.
+
+\subsection{Formal verification}
+The proofs of Theorems~\ref{thm:twosided}, \ref{thm:rh} and~\ref{thm:ls}, of Corollary~\ref{cor:rh}, of Lemma~\ref{lem:queue} and of Proposition~\ref{prop:gaps} have been formalised in Lean~4 with the library Mathlib, and the formalisation accompanies this paper. For Theorem~\ref{thm:twosided}, Lemma~\ref{lem:queue} and Proposition~\ref{prop:gaps} the formal proofs use Mathlib alone. For the other results they take three statements as given: the Riemann hypothesis \cite{Al}; the implication from RH to \eqref{eq:vonkoch}; and the implication from RH to \eqref{eq:selberg}, in the explicit form of \cite[Theorem~1]{CHD}. The following are not formalised: the equivalence stated after the display in Corollary~\ref{cor:rh}(a), the deduction of Hypothesis~LS from \eqref{eq:pointwise} and from the hypothesis $H(0)$ at the beginning of Section~\ref{sec:ls}, Remark~\ref{rem:limit}, and the numerical data of Section~\ref{sec:numerics}.
+
+\subsection{Notation}
+We write $\li(y)=\int_2^y\dd t/\log t$, $E(y)=\pi(y)-\li(y)$, $\vartheta(y)=\sum_{p\le y}\log p$ and $F(y)=\vartheta(y)-y$. We put $L=\log n$ and $t_p=n/p$. The symbols $\ll$ and $O(\cdot)$ refer to absolute implied constants unless a dependence is indicated, and $Z_0$ denotes a sufficiently large absolute constant.
+
+\section{The greedy matching and the upper bound}\label{sec:greedy}
+
+Let $\cP$ be the set of primes $p\le X$. The numbers $t_p=n/p$, $p\in\cP$, are distinct and satisfy $X\le t_p\le n/2$.
+
+Following \cite{EvL}, we process the primes $p\in\cP$ in increasing order. When $p$ is processed, let $q_p$ be the largest prime $q$ with $X<q\le t_p$ which is not equal to $q_{p'}$ for any $p'<p$; if there is no such prime, $p$ is left \emph{unmatched}. The primes $q_p$ are distinct, and the construction has the following property:
+\begin{equation}\label{eq:greedy}
+ \parbox{0.86\textwidth}{if $q$ is a prime with $X<q\le t_p$ and $q\ne q_{p'}$ for every $p'<p$, then $p$ is matched and $q_p\ge q$.}
+\end{equation}
+Put $m_p=pq_p$ if $p$ is matched and $m_p=p^2$ otherwise, and let
+\[
+ \cS_n=\{1\}\cup\{m_p:\ p\in\cP\}\cup\{q:\ X<q\le n,\ q\ne q_p\text{ for every matched }p\}.
+\]
+Distinct elements of $\cS_n$ have disjoint sets of prime factors, so $\cS_n$ is admissible. Let $C(n)$ be the sum of its elements; thus $G(n)\ge C(n)$.
+
+For real $u\ge X$ let $\cQ(u)$ be the set of all $p\in\cP$ with $t_p>u$ such that $p$ is unmatched or $q_p\le u$. These are the primes whose target $t_p$ lies above $u$ but which have not been matched above $u$. We also put
+\[
+ W_n^\infty(u)=\max_{v\ge u}\bigl(A_n(u,v)-\pi(v)+\pi(u)\bigr),
+\]
+which differs from $W_n(u)$ in that $v$ is not restricted to $[u,4u]$.
+
+\begin{lemma}\label{lem:queue}
+For every real $u\ge X$,
+\[
+ \#\cQ(u)=W_n^\infty(u)=W_n(u).
+\]
+\end{lemma}
+
+\begin{proof}
+Let $v\ge u$. A prime $p\in\cP$ with $u<t_p\le v$ which does not belong to $\cQ(u)$ is matched, and $u<q_p\le t_p\le v$. Since the $q_p$ are distinct, there are at most $\pi(v)-\pi(u)$ such $p$, so that $A_n(u,v)-\#\cQ(u)\le\pi(v)-\pi(u)$. Hence $W_n^\infty(u)\le\#\cQ(u)$.
+
+For the reverse inequality, let $V$ be the finite set consisting of $u$, the numbers $t_p$ with $p\in\cP$, and the primes not exceeding $n$. No $t_p$ exceeds the largest element of $V$, so $\cQ(\max V)=\emptyset$, and we may define $v$ to be the least element of $V$ with $v\ge u$ and $\cQ(v)=\emptyset$. If $p\in\cQ(u)$ then $t_p\le v$, since otherwise $p\in\cQ(v)$.
+
+We claim that every prime $q$ with $u<q\le v$ is of the form $q=q_p$ with $u<t_p\le v$. Suppose first that $q\ne q_p$ for all $p\in\cP$, and let $v'$ be the largest element of $V$ which is less than $q$; thus $u\le v'<q\le v$. If $p\in\cQ(v')$, then $t_p$ is an element of $V$ exceeding $v'$, so $t_p\ge q$, and \eqref{eq:greedy} shows that $p$ is matched and $q_p\ge q$. As $q_p\ne q$, this gives $q_p>q>v'$, contrary to $p\in\cQ(v')$. Therefore $\cQ(v')=\emptyset$, which contradicts the choice of $v$. Hence $q=q_p$ for some $p\in\cP$. Then $t_p\ge q>u$, and $t_p\le v$ because otherwise $p\in\cQ(v)$. This proves the claim.
+
+The primes $p$ provided by the claim are distinct, they satisfy $u<t_p\le v$, and none of them belongs to $\cQ(u)$. Consequently $\#\cQ(u)+\pi(v)-\pi(u)\le A_n(u,v)$, and so $\#\cQ(u)\le W_n^\infty(u)$.
+
+For the second equality we use the inequality $\pi(4y)\ge2\pi(y)$, valid for all $y\ge1$; it follows from the bounds $y/\log y<\pi(y)<1.25506\,y/\log y$ of Rosser and Schoenfeld \cite[Corollary~1]{RS} when $y\ge17$ and by inspection otherwise. If $v>4u$ then, since every $p\in\cP$ satisfies $p\le X\le u$,
+\[
+ A_n(u,v)\le\pi(u)\le\pi(4u)-\pi(u)\le\pi(v)-\pi(u),
+\]
+so such $v$ do not affect the maximum.
+\end{proof}
+
+\begin{proposition}\label{prop:upper}
+For every $n\ge3$,
+\begin{align}
+ H(n)-C(n)&=\sum_{p\in\cP}(n-m_p)+\sum_{p\in\cP}p+\sum_{p\ \mathrm{matched}}q_p-1-n\mathbf 1_{n\ \mathrm{prime}},\label{eq:account}\\
+ \sum_{p\in\cP}(n-m_p)&\le2n\int_X^{n/2}W_n(u)\,\frac{\dd u}{u},\label{eq:area}
+\end{align}
+and consequently
+\[
+ H(n)-G(n)\le2n\int_X^{n/2}W_n(u)\,\frac{\dd u}{u}+n\sum_{p\le X}\frac1p+n.
+\]
+\end{proposition}
+
+\begin{proof}
+The primes below $n$ are the elements of $\cP$ and the primes in $(X,n)$. The primes in $(X,n]$ which do not belong to $\cS_n$ are the $q_p$, and $n$ itself belongs to $\cS_n$ if it is prime, because $q_p\le n/2$. This gives \eqref{eq:account}.
+
+If $p$ is matched then $n-m_p=p(t_p-q_p)$, and $p\in\cQ(u)$ exactly for $q_p\le u<t_p$. If $p$ is unmatched then $p\in\cQ(u)$ exactly for $X\le u<t_p$, and
+\[
+ n-m_p=p(t_p-X)+p(X-p)\le2p(t_p-X),
+\]
+because $p+n/p\ge2X$. Moreover $p<n/u$ for every $p\in\cQ(u)$. Hence
+\[
+ \sum_{p\in\cP}(n-m_p)\le2\int_X^{\infty}\ \sum_{p\in\cQ(u)}p\ \dd u\le2\int_X^{n/2}\frac nu\,\#\cQ(u)\,\dd u,
+\]
+which is \eqref{eq:area} by Lemma~\ref{lem:queue}. Finally $\sum_{p\in\cP}p\le X\,\#\cP\le n$ and $q_p\le n/p$, and the last assertion follows from $G(n)\ge C(n)$.
+\end{proof}
+
+\section{The lower bound}\label{sec:lower}
+
+\begin{proposition}\label{prop:lower}
+Let $n\ge2$ and let $S\subseteq\{1,\dots,n\}$ be admissible. Then
+\[
+ H(n)-\sum_{a\in S}a\ \ge\ \frac n4\int_X^{n^{2/3}/4}W_n(u)\,\frac{\dd u}{u}-n-1,
+\]
+where the integral is to be read as $0$ if $n^{2/3}\le4X$.
+\end{proposition}
+
+\begin{proof}
+Every element of $S$ other than $1$ is either a prime exceeding $X$ or has a prime factor not exceeding $X$. For an element $a$ of the second kind let $\lambda(a)\in\cP$ be its least prime factor. Since $S$ is admissible, $\lambda$ is injective. For $p\in\cP$ let $m_p$ be the element of $S$ with $\lambda(m_p)=p$ if there is one, and $m_p=0$ otherwise. Then
+\[
+ \sum_{a\in S}a\le1+\sum_{p\in\cP}m_p+\sum_{\substack{X<q\le n\\ q\in S}}q,
+\]
+and since $H(n)=\sum_{p\in\cP}p+\sum_{X<q<n}q+n\,\#\cP$, we obtain
+\begin{equation}\label{eq:lowerstart}
+ H(n)-\sum_{a\in S}a\ \ge\ \sum_{p\in\cP}(n-m_p)-n-1 .
+\end{equation}
+All terms of the sum on the right are non-negative.
+
+Let $\cN$ be the set of primes $p$ with $n^{1/3}<p\le X$, and let $p\in\cN$ with $m_p\ne0$. Write $m_p=pc$. Then $c\le n/p<p^2$ and every prime factor of $c$ is at least $p$, so that $c$ is $1$ or a prime. Thus $m_p$ is of one of the forms
+\[
+ p,\qquad p^2,\qquad pp'\ \text{with}\ p<p'\le X,\qquad pq\ \text{with}\ X<q\le t_p .
+\]
+In the last case we say that $p$ is \emph{served} and put $\sigma_p=q$; the primes $\sigma_p$ are distinct. For all other $p\in\cN$, including those with $m_p=0$, we put $\sigma_p=X$. Then
+\begin{equation}\label{eq:lowerclaim}
+ n-m_p\ \ge\ p\,(t_p-\sigma_p)\qquad(p\in\cN).
+\end{equation}
+Indeed, there is equality if $p$ is served, and in all other cases $m_p\le pX$, so that $n-m_p\ge n-pX=p(t_p-\sigma_p)$.
+
+Now let $X\le u<n^{2/3}/4$ and $u\le v\le4u$. Every prime $p$ with $u<t_p\le v$ satisfies $n^{1/3}<n/v\le p<n/u\le X$, hence lies in $\cN$, and $p\ge n/(4u)$. There are $A_n(u,v)$ such primes. Those among them with $\sigma_p>u$ are served by distinct primes $\sigma_p\in(u,t_p]\subseteq(u,v]$, so there are at most $\pi(v)-\pi(u)$ of them. Hence at least $A_n(u,v)-\pi(v)+\pi(u)$ of them satisfy $\sigma_p\le u<t_p$. Taking the maximum over $v$,
+\[
+ \sum_{\substack{p\in\cN\\ \sigma_p\le u<t_p}}p\ \ge\ \frac{n}{4u}\,W_n(u)\qquad(X\le u<n^{2/3}/4).
+\]
+Since $\sigma_p\ge X$, integration over $u$ gives
+\[
+ \sum_{p\in\cN}p\,(t_p-\sigma_p)\ \ge\ \frac n4\int_X^{n^{2/3}/4}W_n(u)\,\frac{\dd u}{u},
+\]
+and the proposition follows from \eqref{eq:lowerstart} and \eqref{eq:lowerclaim}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:twosided}]
+Apply Proposition~\ref{prop:lower} to an admissible set with sum $G(n)$, and combine with Proposition~\ref{prop:upper}.
+\end{proof}
+
+\section{Main terms}\label{sec:drift}
+
+For $X\le u\le v$ with $n/v\ge2$ let
+\[
+ \Delta_n(u,v)=\bigl(\li(v)-\li(u)\bigr)-\bigl(\li(n/u)-\li(n/v)\bigr).
+\]
+
+\begin{lemma}\label{lem:drift}
+Let $X\le u\le n/30$ and $0\le s\le\log4$. Then
+\[
+ \Delta_n(u,ue^s)\ \ge\ \frac sL\Bigl(u-X+\frac{Xs}{2}\Bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+For $0\le\sigma\le\log4$ put $t=ue^\sigma$, so that $X\le t\le4u$ and $n/t\ge15/2>e^2$. Then
+\[
+ \frac{\dd}{\dd\sigma}\,\Delta_n(u,ue^{\sigma})=\frac{t}{\log t}-\frac{n/t}{\log(n/t)} .
+\]
+Write $t=Xz$ with $z\ge1$, and $d=\log(n/t)\ge2$. Then $n/t=X/z$ and $\log t=d+2\log z\le d+(z-1)d=zd$, whence $(n/t)/\log(n/t)=X/(zd)\le X/\log t$. Therefore
+\[
+ \frac{\dd}{\dd\sigma}\,\Delta_n(u,ue^{\sigma})\ \ge\ \frac{t-X}{\log t}\ \ge\ \frac{t-X}{L}\ \ge\ \frac{u-X+X\sigma}{L},
+\]
+because $\log t\le L$ and $t=ue^\sigma\ge u+X\sigma$. As $\Delta_n(u,u)=0$, integration over $0\le\sigma\le s$ gives the assertion.
+\end{proof}
+
+For $0<r\le2$ and $u\ge X$ let
+\[
+ b_r(u)=\frac{r}{2L}\Bigl(u-X+\frac{Xr}4\Bigr),
+\]
+and put $r_i=2^{1-i}$ for integers $i\ge0$.
+
+\begin{lemma}\label{lem:excess}
+Let $X\le u\le n/30$, and let $N\ge0$ be an integer with $2^N\ge2u$. For $0\le i\le N$ let $M_i^+$ and $M_i^-$ be real numbers such that
+\[
+ \bigl|E(ue^{s})-E(u)\bigr|\le M_i^+\quad\text{and}\quad\bigl|E\bigl((n/u)e^{-s}\bigr)-E(n/u)\bigr|\le M_i^-\qquad(0\le s\le r_i).
+\]
+Then
+\[
+ W_n(u)\ \le\ 2+\sum_{i=0}^{N}\frac{(M_i^++M_i^-)^2}{4\,b_{r_i}(u)} .
+\]
+Moreover, if $n\ge3600$ and $X\le u\le2X$, then $W_n(u)\le2+4\max_{X/8\le y\le8X}|E(y)|$. Finally, $W_n(u)\le\pi(n/u)$ for every $u\ge X$.
+\end{lemma}
+
+\begin{proof}
+Let $v=ue^s$ with $0\le s\le\log4$. The primes counted by $A_n(u,v)$ lie in $[n/v,n/u)$, so that $A_n(u,v)\le\pi(n/u)-\pi(n/v)+1$ and
+\begin{equation}\label{eq:excess}
+ A_n(u,v)-\pi(v)+\pi(u)\le1-\Delta_n(u,v)+\bigl(E(n/u)-E(n/v)\bigr)-\bigl(E(v)-E(u)\bigr).
+\end{equation}
+The interval $[n/v,n/u)$ has length $(n/u)(1-e^{-s})\le us$. If $s\le r_N$ then $us\le1$, since $r_N\le1/u$, and therefore $A_n(u,v)\le2$. Suppose that $s>r_N$. As $s\le\log4<r_0$, there is an $i$ with $1\le i\le N$ and $r_i<s\le r_{i-1}$. Put $r=r_{i-1}$, so that $r/2<s\le r$. By Lemma~\ref{lem:drift}, $\Delta_n(u,v)\ge b_r(u)$, and by \eqref{eq:excess},
+\[
+ A_n(u,v)-\pi(v)+\pi(u)\le1+M-b_r(u)\le1+\frac{M^2}{4\,b_r(u)},\qquad M=M_{i-1}^++M_{i-1}^- .
+\]
+This proves the first assertion. If $n\ge3600$ and $X\le u\le2X$, then $u\le n/30$ and the points $u$, $v$, $n/u$, $n/v$ lie in $[X/8,8X]$, so the second assertion follows from \eqref{eq:excess} and $\Delta_n(u,v)\ge0$. The last assertion holds because every prime counted by $A_n(u,v)$ is less than $n/u$.
+\end{proof}
+
+\section{Mean values of prime counts}\label{sec:mean}
+
+Recall that $F(y)=\vartheta(y)-y$. The Riemann hypothesis enters the proof of Theorem~\ref{thm:rh} only through the following two classical consequences, in which $C_0$, $x_0$ and $\delta_0$ are positive absolute constants:
+\begin{align}
+ &|E(y)|\le C_0\sqrt y\,\log y\qquad(y\ge2);\tag{VK}\label{eq:vonkoch}\\
+ &\int_1^x\bigl(\vartheta(y+\delta y)-\vartheta(y)-\delta y\bigr)^2\,\dd y\le C_0\,\delta\,x^2(\log x)^2\qquad(x\ge x_0,\ 0<\delta\le\delta_0).\tag{MS}\label{eq:selberg}
+\end{align}
+The first is von Koch's theorem; in the explicit form of Schoenfeld \cite[Corollary~1]{Sch}, $|\pi(y)-\li(y)|<\sqrt y\,\log y/(8\pi)$ for $y\ge2657$. The second is Selberg's estimate \cite{Se}; see also \cite{SV}. In the explicit form of Cully-Hugill and Dudek \cite[Theorem~1]{CHD} it holds with $C_0=202$, $x_0=10^8$ and $\delta_0=10^{-8}$.
+
+\begin{lemma}\label{lem:selberg}
+Assume \eqref{eq:selberg}. For $Z\ge Z_0$ and $0<w\le2$,
+\[
+ \int_{Z/8}^{16Z}\bigl|F(ye^w)-F(y)\bigr|^2\,\dd y\ \ll\ Z^2w(\log Z)^2 .
+\]
+\end{lemma}
+
+\begin{proof}
+With $\delta=e^w-1$ the integrand is that of \eqref{eq:selberg}, and $\delta\le e^2w$. If $\delta\le\delta_0$, the assertion follows from \eqref{eq:selberg} with $x=16Z$. In general, let $m$ be a fixed integer with $e^{2/m}-1\le\delta_0$, write $F(ye^w)-F(y)$ as the sum of the $m$ differences $F(ye^{(l+1)w/m})-F(ye^{lw/m})$, apply the Cauchy--Schwarz inequality, and substitute $y\mapsto ye^{lw/m}$; this maps $[Z/8,16Z]$ into $[1,128Z]$, and the case already proved applies with $x=128Z$.
+\end{proof}
+
+The next lemma bounds the variation of $F$ and of $E$ over an interval by a finite sum of increments, to which mean square estimates can be applied. For $y>0$, $0<r\le2$ and integers $j\ge0$, $0\le l<2^j$, let
+\[
+ D^+_{j,l}(y)=F\bigl(ye^{(l+1)r2^{-j}}\bigr)-F\bigl(ye^{lr2^{-j}}\bigr),\qquad
+ D^-_{j,l}(y)=F\bigl(ye^{-lr2^{-j}}\bigr)-F\bigl(ye^{-(l+1)r2^{-j}}\bigr),
+\]
+and for an integer $k\ge0$ let
+\[
+ B^\pm_{r,k}(y)=2\sum_{j=0}^k\Bigl(\sum_{l=0}^{2^j-1}D^\pm_{j,l}(y)^2\Bigr)^{1/2}+c^\pm,\qquad c^+=ye^r\bigl(e^{r2^{-k}}-1\bigr),\quad c^-=y\bigl(e^{r2^{-k}}-1\bigr).
+\]
+
+\begin{lemma}\label{lem:maximal}
+Let $y>0$, $0<r\le2$, $0\le s\le r$, and let $k\ge0$ be an integer.
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=*]
+\item $\bigl|F(ye^{\pm s})-F(y)\bigr|\le B^\pm_{r,k}(y)$.
+\item If $y\ge2$, then $\bigl|E(ye^{s})-E(y)\bigr|\le B^+_{r,k}(y)/\log y$. If $ye^{-r}\ge2$, then $\bigl|E(ye^{-s})-E(y)\bigr|\le2B^-_{r,k}(y)/\log(ye^{-r})$.
+\item Let $Z\ge1$, let $J\subseteq[Z,2Z]$ be an interval of length $|J|$, let $2^k\ge Zr$, and let $K>0$ be such that
+\begin{equation}\label{eq:maxhyp}
+ \int_{e^aJ}\bigl|F(ye^w)-F(y)\bigr|^2\,\dd y\le Kw\qquad\text{for all }0<w\le r\text{ and }|a|\le r,
+\end{equation}
+where $e^aJ=\{e^ay:\ y\in J\}$. Then, for either choice of sign,
+\[
+ \int_JB^\pm_{r,k}(y)^2\,\dd y\ \le\ 120\,(k+1)^2Kr+3200\,|J| .
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) We treat the sign $+$; the other case is identical after reflecting the grid. Put $\mu=r2^{-k}$ and let $s'=i\mu$ be the largest multiple of $\mu$ not exceeding $s$. The interval $[0,s')$ is a disjoint union of intervals of the form $[lr2^{-j},(l+1)r2^{-j})$ with at most one such interval for each $j\in\{0,\dots,k\}$, whence
+\[
+ \bigl|F(ye^{s'})-F(y)\bigr|\le\sum_{j=0}^k\max_{l}|D^+_{j,l}(y)|\le\sum_{j=0}^k\Bigl(\sum_{l}D^+_{j,l}(y)^2\Bigr)^{1/2} .
+\]
+Since $\vartheta$ is non-decreasing, $F(ye^s)-F(ye^{s'})$ lies between $-(ye^s-ye^{s'})\ge-c^+$ and $\vartheta(ye^{s'+\mu})-\vartheta(ye^{s'})=D^+_{k,i}(y)+ye^{s'}(e^{\mu}-1)\le|D^+_{k,i}(y)|+c^+$ when $s'<r$, and vanishes when $s'=r$.
+
+(b) For $2\le a\le c$, partial summation gives
+\[
+ E(c)-E(a)=\frac{F(c)-F(a)}{\log c}+\int_a^c\frac{F(t)-F(a)}{t(\log t)^2}\,\dd t .
+\]
+With $a=y$ and $c=ye^s$, part~(a) bounds $|F(t)-F(a)|$ by $B=B^+_{r,k}(y)$ for $a\le t\le c$, so that $|E(c)-E(a)|\le B/\log c+B(1/\log a-1/\log c)=B/\log y$. With $a=ye^{-s}$ and $c=y$, part~(a) gives $|F(c)-F(a)|\le B$ and $|F(t)-F(a)|\le2B$ for $a\le t\le c$, where $B=B^-_{r,k}(y)$; hence $|E(c)-E(a)|\le2B/\log a\le2B/\log(ye^{-r})$.
+
+(c) By the Cauchy--Schwarz inequality,
+\[
+ B^\pm_{r,k}(y)^2\le8(k+1)\sum_{j=0}^k\sum_{l=0}^{2^j-1}D^\pm_{j,l}(y)^2+2(c^\pm)^2 ,
+\]
+and $c^\pm\le2Ze^2\cdot2r2^{-k}\le4e^2$ for $y\in J$, because $Zr2^{-k}\le1$. The substitutions $y\mapsto ye^{lr2^{-j}}$ and $y\mapsto ye^{-(l+1)r2^{-j}}$, whose Jacobians are at most $e^2$, and \eqref{eq:maxhyp} with $w=r2^{-j}$ give $\int_JD^\pm_{j,l}(y)^2\,\dd y\le e^2Kr2^{-j}$. Summing over $l$ and $j$ we obtain the assertion, since $8e^2<120$ and $32e^4<3200$.
+\end{proof}
+
+\begin{corollary}\label{cor:maximal}
+Assume \eqref{eq:selberg}. Let $Z\ge Z_0$ and $0<r\le2$, and let $k=k(Z,r)$ be the least integer $k\ge0$ with $2^k\ge Zr$. Then, for either sign,
+\[
+ \int_Z^{2Z}B^\pm_{r,k}(y)^2\,\dd y\ \ll\ Z(1+Zr)(\log Z)^4 .
+\]
+\end{corollary}
+
+\begin{proof}
+For $|a|\le2$ the interval $e^a[Z,2Z]$ is contained in $[Z/8,16Z]$. By Lemma~\ref{lem:selberg}, the hypothesis \eqref{eq:maxhyp} holds for $J=[Z,2Z]$ with $K\ll Z^2(\log Z)^2$, and $k+1\ll\log Z$. The assertion follows from Lemma~\ref{lem:maximal}(c).
+\end{proof}
+
+\section{\texorpdfstring{Proof of Theorem~\ref{thm:rh} and Corollary~\ref{cor:rh}}{Proof of Theorem 1.2 and Corollary 1.3}}\label{sec:proofs}
+
+By the theorem of Alp\"oge \cite{Al}, the estimates \eqref{eq:vonkoch} and \eqref{eq:selberg} hold. All three parts of Theorem~\ref{thm:rh} are trivial for bounded $n$ and $N$, because $W_n(u)\le\#\cP\le X$; we may therefore assume that $n$ and $N$ are large. The first two parts follow from the next lemma.
+
+\begin{lemma}\label{lem:block}
+There are absolute constants $C$ and $Z_1\ge30$ with the following property. Let $U\ge X$ with $2UZ_1\le n$, let $0<\beta\le1$, and let $a\ge\max(U,\,X+\beta U)$. Then
+\[
+ \int_a^{2U}W_n(u)\,\frac{\dd u}{u}\ \le\ \frac{C\,L^4}{\beta}.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $Z=n/(2U)$, so that $Z_1\le Z\le U$, and let $N$ be the least integer with $2^N\ge4U$. For $u\in[a,2U]$ we have $U\le u\le n/30$ and $Z\le n/u\le2Z$. By Lemma~\ref{lem:maximal}(b), the hypotheses of Lemma~\ref{lem:excess} hold with
+\[
+ M_i^+=\frac{B^+_{r_i,k}(u)}{\log u},\qquad M_i^-=\frac{2B^-_{r_i,k'}(n/u)}{\log\bigl((n/u)e^{-r_i}\bigr)},\qquad k=k(U,r_i),\quad k'=k(Z,r_i).
+\]
+Since $b_{r_i}(u)\ge r_i\beta U/(2L)$ and $u\ge U$, Lemma~\ref{lem:excess} gives
+\[
+ \frac{W_n(u)}{u}\le\frac2u+\sum_{i=0}^N\frac{L}{r_i\beta U^2}\bigl((M_i^+)^2+(M_i^-)^2\bigr)\qquad(a\le u\le2U).
+\]
+By Corollary~\ref{cor:maximal}, the integral of $(M_i^+)^2$ over $[U,2U]$ is $O(U(1+Ur_i)L^2)$. The substitution $y=n/u$ maps $[U,2U]$ onto $[Z,2Z]$, with $\dd u=ny^{-2}\,\dd y\le4U^2n^{-1}\,\dd y$, and $\log(ye^{-r_i})\ge\frac12\log Z$ if $Z_1$ is large enough; so the same corollary shows that the integral of $(M_i^-)^2$ over $[U,2U]$ is $O(U(1+Zr_i)L^2)=O(U(1+Ur_i)L^2)$. Hence
+\[
+ \int_a^{2U}W_n(u)\,\frac{\dd u}{u}\ \ll\ 1+\frac{L^3}{\beta}\sum_{i=0}^N\Bigl(\frac1{r_iU}+1\Bigr)\ \ll\ \frac{L^4}{\beta},
+\]
+because $1/(r_iU)\le2^N/(2U)<4$ for $i\le N$, and $N\ll L$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:rh}\textup{(i)}]
+Let $C$ and $Z_1$ be as in Lemma~\ref{lem:block}. For $m\ge0$ let $U_m=2^{m+1}X$. If $2U_mZ_1\le n$, Lemma~\ref{lem:block} with $U=a=U_m$ and $\beta=1/2$ shows that the integral of $W_n(u)\,\dd u/u$ over $[U_m,2U_m]$ is at most $2CL^4$. There are at most $L$ such $m$, and the corresponding intervals cover $[2X,n/(2Z_1)]$. For $u>n/(2Z_1)$ the last assertion of Lemma~\ref{lem:excess} gives $W_n(u)\le\pi(n/u)\le2Z_1$, so that the remaining range contributes at most $2Z_1\log Z_1$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:rh}\textup{(ii)}]
+By the second assertion of Lemma~\ref{lem:excess} and \eqref{eq:vonkoch}, $W_n(u)\ll\sqrt X\,L$ for $X\le u\le2X$. Let $T=X^{-1/4}L^{3/2}$. Then
+\[
+ \int_X^{X(1+T)}W_n(u)\,\frac{\dd u}{u}\ll T\sqrt X\,L=X^{1/4}L^{5/2},
+\]
+and if $T<1$, Lemma~\ref{lem:block} with $U=X$, $a=X(1+T)$ and $\beta=T$ gives
+\[
+ \int_{X(1+T)}^{2X}W_n(u)\,\frac{\dd u}{u}\ll\frac{L^4}{T}=X^{1/4}L^{5/2}.
+\]
+Hence $I(n)\ll X^{1/4}L^{5/2}=n^{1/8}(\log n)^{5/2}$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:rh}\textup{(iii)}]
+Write $\mathcal L=\log(2N)$ and $\eta=N^{-1/2}$. For $N<n\le2N$ we have
+\[
+ I(n)=\int_1^2W_n(z\sqrt n)\,\frac{\dd z}{z}.
+\]
+The range $1\le z<1+\eta$ contributes at most $\eta\sqrt{2N}$ to $I(n)$, because $W_n\le\#\cP\le\sqrt{2N}$, and therefore at most $2N$ to the sum over $n$.
+
+Fix $z\in[1+\eta,2]$ and $n\in(N,2N]$, and put $u=z\sqrt n$. Let $n\le t\le n+1$, $y^+=z\sqrt t$ and $y^-=\sqrt t/z$. Then $0\le y^+-u\le N^{-1/2}$ and $0\le y^--n/u\le N^{-1/2}$. For two points $y_1,y_2\ge2$ with $|y_1-y_2|\le1$ we have $|E(y_1)-E(y_2)|\le3$. Hence, by Lemma~\ref{lem:maximal}(b), the hypotheses of Lemma~\ref{lem:excess} hold with $N'$ the least integer satisfying $2^{N'}\ge8\sqrt N$ and with
+\[
+ M_i^+=g_i^+(t)=\frac{B^+_{r_i,k}(y^+)}{\log y^+}+6,\qquad M_i^-=g_i^-(t)=\frac{2B^-_{r_i,k'}(y^-)}{\log(y^-e^{-r_i})}+6,
+\]
+where $k=k(z\sqrt N,r_i)$ and $k'=k(\sqrt N/z,r_i)$. Here $b_{r_i}(u)\ge r_i(z-1)\sqrt N/(2\mathcal L)$. Since $t\in[n,n+1]$ is arbitrary, we may integrate over $t$, and Lemma~\ref{lem:excess} gives
+\[
+ W_n(z\sqrt n)\le2+\sum_{i=0}^{N'}\frac{\mathcal L}{r_i(z-1)\sqrt N}\int_n^{n+1}\bigl(g_i^+(t)^2+g_i^-(t)^2\bigr)\,\dd t .
+\]
+We sum over $n$ and substitute $y=z\sqrt t$ and $y=\sqrt t/z$, respectively, so that $\dd t\ll\sqrt N\,\dd y$ and $y$ runs over a subset of $[Z,2Z]$ with $Z=z\sqrt N$ and $Z=\sqrt N/z$. By Corollary~\ref{cor:maximal},
+\[
+ \sum_{N<n\le2N}\int_n^{n+1}\bigl(g_i^+(t)^2+g_i^-(t)^2\bigr)\,\dd t\ll N\bigl(1+\sqrt N\,r_i\bigr)\mathcal L^2 .
+\]
+As $1/(r_i\sqrt N)<8$ for $i\le N'$, and $N'\ll\mathcal L$, we conclude that
+\[
+ \sum_{N<n\le2N}W_n(z\sqrt n)\le2N+O\Bigl(\frac{N\mathcal L^4}{z-1}\Bigr)\qquad(1+\eta\le z\le2).
+\]
+Integrating over $z$,
+\[
+ \sum_{N<n\le2N}I(n)\ll N+N\mathcal L^4\int_{1+\eta}^2\frac{\dd z}{z-1}\ll N(\log N)^5 .\qedhere
+\]
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:rh}]
+Since $\sum_{p\le X}1/p\le1+\log X$, Theorem~\ref{thm:twosided} and Theorem~\ref{thm:rh}(i) give a constant $C_1$ with
+\begin{equation}\label{eq:upperI}
+ H(n)-G(n)\le2nI(n)+C_1n(\log n)^5\qquad(n\ge3).
+\end{equation}
+
+(a) If $n\ge2^{18}$ then $n^{2/3}/4\ge2\sqrt n$, so the integral on the left of Theorem~\ref{thm:twosided} is at least $I(n)$. The upper bound is \eqref{eq:upperI}.
+
+(b) This follows from \eqref{eq:upperI} and Theorem~\ref{thm:rh}(ii), because $(\log n)^{5/2}\ll n^{1/8}$.
+
+(c) We may assume that $\lambda\ge2C_1$. If $H(n)-G(n)>\lambda n(\log n)^5$, then $I(n)>\frac14\lambda(\log n)^5$ by \eqref{eq:upperI}. By Theorem~\ref{thm:rh}(iii), the number of such $n$ in $(M,2M]$ is $O(M/\lambda)$ for every integer $M\ge2$. Summing over $M=2^k<N$ gives the bound $O(N/\lambda)$. The last assertion follows on applying the same argument in each range $(M,2M]$ with $\lambda=\log M$, since $\sum_{2^k<N}2^k/k\ll N/\log N$.
+\end{proof}
+
+\section{The localised hypothesis}\label{sec:ls}
+
+We first justify the remarks made after the statement of Hypothesis~LS. Suppose that
+\begin{equation}\label{eq:pointwise}
+ \psi(y+h)-\psi(y)-h\ll_\eps h^{1/2}y^\eps\qquad(1\le h\le y).
+\end{equation}
+On an interval $(y,y+h]$ with $h\le y$ the function $\psi-\vartheta$ increases by $O\bigl((1+hy^{-1/2})(\log y)^2\bigr)$, so the same bound holds for $\vartheta$ in place of $\psi$. Let $x$, $\eta$, $\delta$ be as in Hypothesis~LS and $x\le y\le2x$. If $\delta y\ge1$, the integrand in Hypothesis~LS is $O_\eps(\delta x^{1+2\eps})$. If $\delta y<1$, it is at most $(\log3x)^2$ when $(y,y+\delta y]$ contains a prime and at most $(\delta y)^2\le2\delta x$ otherwise, and the set of $y\in[x,x(1+\eta)]$ of the first kind has measure $O(\delta\eta x^2)$, because $\eta x\ge\sqrt x$. In both cases the integral is $O_\eps(\delta\eta x^{2+2\eps})$, so that \eqref{eq:pointwise} implies Hypothesis~LS.
+
+Under the hypothesis $H(0)$ of \cite{LPZ}, the bound \eqref{eq:pointwise} is proved in \cite[Theorem~2]{LPZ} for $y^{3\eps}\le h\le y^{1-\eps}$. For $h<y^{3\eps}$ it is trivial, with $4\eps$ in place of $\eps$, and for $y^{1-\eps}<h\le y$ it follows, with $2\eps$ in place of $\eps$, on dividing $(y,y+h]$ into at most $2y^\eps$ intervals of equal length. Hence $H(0)$ implies \eqref{eq:pointwise}, and with it Hypothesis~LS.
+
+The next proposition shows how much Hypothesis~LS($\theta$) contains when $\theta>0$.
+
+\begin{proposition}\label{prop:gaps}
+Let $0\le\theta\le\frac12$ and assume Hypothesis~LS($\theta$). Then, for every $\eps>0$, consecutive primes $p<p'$ satisfy
+\[
+ p'-p\ll_\eps p^{(1-\theta)/2+\eps}.
+\]
+\end{proposition}
+
+\begin{proof}
+Let $g=p'-p$, so that $g\le p$ by Bertrand's postulate. We apply Hypothesis~LS($\theta$) with $x=p$, $\eta=p^{-\theta}$ and $\delta=g/(2p)$. If $p\le y\le p+g/4$, then
+\[
+ y+\delta y\le p+\frac g4+\frac g2\Bigl(1+\frac g{4p}\Bigr)\le p+\frac78\,g<p',
+\]
+so that $\vartheta(y+\delta y)=\vartheta(y)$, and the integrand in Hypothesis~LS($\theta$) is $(\delta y)^2\ge g^2/4$. Let $m=\min(g/4,\,p^{1-\theta})$. The interval $[p,p+m]$ is contained in $[x,x(1+\eta)]$, and therefore
+\[
+ \frac{m\,g^2}{4}\ \le\ C(\eps)\,\frac{g}{2p}\,p^{-\theta}\,p^{2+\eps}=\tfrac12\,C(\eps)\,g\,p^{1-\theta+\eps}.
+\]
+If $m=g/4$ this gives $g^2\le8C(\eps)\,p^{1-\theta+\eps}$, and if $m=p^{1-\theta}$ it gives $g\le2C(\eps)\,p^{\eps}$.
+\end{proof}
+
+For $\theta=0$ the proposition is contained in Cram\'er's theorem \cite{Cr} that RH implies $p'-p\ll\sqrt p\,\log p$; the best known constant is due to Carneiro, Milinovich and Soundararajan \cite{CMS}. For $\theta>0$ the exponent is smaller than $\frac12$. No such bound is known to follow from RH, and it would imply Legendre's conjecture, that there is a prime between any two consecutive squares, for all sufficiently large squares.
+
+\begin{proof}[Proof of Theorem~\ref{thm:ls}]
+We may assume that $n$ is large. For $j\ge1$ put $\tau_j=2^{-j}$ and $I_j=[X(1+\tau_j),X(1+2\tau_j)]$; these intervals cover $(X,2X]$. Let $T=32X^{-(1+2\theta)/4}$, so that $T\ge32X^{-1/2}$. By the second assertion of Lemma~\ref{lem:excess} and \eqref{eq:vonkoch}, $W_n(u)\ll\sqrt X\,L$ on $[X,2X]$, so the intervals $I_j$ with $\tau_j<T$ contribute $O(T\sqrt X\,L)=O(X^{(1-2\theta)/4}L)$ to $I(n)$. Let $\tau=\tau_j\ge T$, and put $J=I_j\subseteq[X,2X]$ and $J'=\{n/u:\ u\in I_j\}\subseteq[X/2,X]$. Both are of the form $[x_0,x_0(1+\eta)]$ with $\eta=\tau/(1+\tau)\le\tau$, and both have length at most $\tau X$. Let
+\[
+ \sigma=\max\bigl(\tau,\ \min(1,12X^{-\theta})\bigr),
+\]
+so that $\tau\le\sigma\le1$.
+
+We claim that \eqref{eq:maxhyp} holds for $J$ and for $J'$, with $r=2$ and $K\ll_\eps\sigma X^{2+\eps}$. Indeed, for $|a|\le4$ the interval $e^aJ$ is contained in an interval $[x,x(1+\sigma)]$ with $X/110\le x\le110X$, and $x^{-\theta}\le\min(1,110^{\theta}X^{-\theta})\le\sigma$; the same holds for $J'$. For $0<w\le\log2$ and $|a|\le4$, Hypothesis~LS($\theta$) with $\eta=\sigma$ and $\delta=e^w-1\le2w$ therefore gives, since the integrand is non-negative,
+\[
+ \int_{e^aJ}\bigl|F(ye^w)-F(y)\bigr|^2\,\dd y\ll_\eps w\,\sigma X^{2+\eps}.
+\]
+For $\log2<w\le2$ we split the increment into three increments of length $w/3<\log2$ and apply the Cauchy--Schwarz inequality; the translates which occur satisfy $|a|\le4$. This proves the claim.
+
+Let $N$ be the least integer with $2^N\ge4X$. For $u\in I_j$ the hypotheses of Lemma~\ref{lem:excess} hold, by Lemma~\ref{lem:maximal}(b), with $M_i^+=B^+_{r_i,k}(u)/\log u$ and $M_i^-=2B^-_{r_i,k'}(n/u)/\log((n/u)e^{-r_i})$, where $k=k(X,r_i)$ and $k'=k(X/2,r_i)$. By Lemma~\ref{lem:maximal}(c) and the claim, the integrals of $(M_i^+)^2$ and, after the substitution $y=n/u$, of $(M_i^-)^2$ over $I_j$ are $O_\eps(\sigma X^{2+\eps}r_i+\tau X)$. Since $b_{r_i}(u)\ge r_i\tau X/(2L)$ on $I_j$, Lemma~\ref{lem:excess} gives, as in the proof of Lemma~\ref{lem:block},
+\[
+ \int_{I_j}W_n(u)\,\frac{\dd u}{u}\ll_\eps\tau+\sum_{i=0}^{N}\frac{L}{r_i\tau X^2}\bigl(\sigma X^{2+\eps}r_i+\tau X\bigr)\ll\frac{\sigma}{\tau}\,X^{\eps}L^2 .
+\]
+Here $\sigma/\tau\le1+12X^{-\theta}/\tau_j$, and
+\[
+ \sum_{\tau_j\ge T}\Bigl(1+\frac{12X^{-\theta}}{\tau_j}\Bigr)\ll L+\frac{X^{-\theta}}{T}\ll L+X^{(1-2\theta)/4}.
+\]
+Hence $I(n)\ll_\eps X^{(1-2\theta)/4+\eps}L^3\ll n^{(1-2\theta)/8+\eps}$, which is the first assertion. The bound for $H(n)-G(n)$ follows from \eqref{eq:upperI}, and the last assertion is the case $\theta=\frac12$.
+\end{proof}
+
+\begin{remark}[The exponent $1/8$]\label{rem:limit}
+The proof of Theorem~\ref{thm:rh}(ii) uses only the monotonicity of $\vartheta$ and the sizes of the bounds \eqref{eq:vonkoch} and \eqref{eq:selberg}. These alone do not give more. Let $R=X^{3/4}$ and $\alpha=20R/(X\log X)$, and consider the density
+\[
+ g(t)=\frac1{\log t}+\alpha\mathbf 1_{[X-3R,\,X-R/2]}(t)-\alpha\mathbf 1_{[X+R/2,\,X+3R]}(t)
+\]
+in place of the primes; it is positive when $X$ is large. Let $\widetilde E(y)=\int_2^y(g(t)-1/\log t)\,\dd t$ and $\widetilde F(y)=\int_2^y(g(t)\log t-1)\,\dd t$ take the places of $E$ and $F$. Then $|\widetilde E(y)|\le3\alpha R\ll\sqrt X/\log X$, and for $1\le h\le X$,
+\[
+ \int_{X/2}^{2X}\bigl|\widetilde F(y+h)-\widetilde F(y)\bigr|^2\,\dd y\ll(\alpha\log X)^2\min(h,R)^2\,(h+R)\ll Xh,
+\]
+so that the model satisfies \eqref{eq:vonkoch} and the bound of Lemma~\ref{lem:selberg} with a factor $(\log X)^2$ to spare. On the other hand, for $X+R\le u\le X+3R/2$ and $v=X+2R$ the interval $(u,v]$ lies in the range where $g$ is diminished and $[n/v,n/u)$ lies in the range where $g$ is increased, while the integrand of $\Delta_n(u,v)=\int_u^v\bigl(1/\log t-n/(t^2\log(n/t))\bigr)\,\dd t$ is at most $4R/(X\log X)=\alpha/5$ on $(u,v]$. The surplus of reflected mass over mass on $(u,v]$ is therefore at least $\alpha R/4$, and the analogue of $I(n)$ for $g$ is $\gg\alpha R^2/X\gg X^{1/4}/\log X$. To go beyond Theorem~\ref{thm:rh}(ii) one must therefore use information on the primes in ranges of length about $X^{3/4}$ which is not contained in these two estimates.
+\end{remark}
+
+\section{Numerical data}\label{sec:numerics}
+
+The data of this section play no part in the proofs. They were computed with the accompanying program \texttt{tables\_erdos\_879.py}.
+
+\subsection{Exact values}
+As observed by Rafik (see \cite{Bl}) and White \cite{Wh}, $G(n)-1$ is the optimal value of the integer programme which selects pairwise disjoint sets $R$ of primes, the weight of $R$ being the largest integer not exceeding $n$ whose set of prime factors is $R$. For the values of $n$ in Table~\ref{tab:exact} the program solves this integer programme and certifies optimality by an exact rational solution of the dual of its linear relaxation. The values for $n\le10^5$ agree with those of \cite{Wh}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+$n$ & $G(n)$ & $H(n)-G(n)$ & $H(n)-C(n)$\\
+\midrule
+$10^3$ & 85\,685 & 1\,442 & 2\,160\\
+$10^4$ & 5\,972\,790 & 13\,606 & 23\,686\\
+$10^5$ & 460\,762\,887 & 133\,650 & 260\,526\\
+$10^6$ & 37\,717\,171\,223 & 1\,230\,800 & 2\,743\,228\\
+\bottomrule
+\end{tabular}
+\medskip
+\caption{Exact values of $G(n)$, and the deficit of the greedy set $\cS_n$.}\label{tab:exact}
+\end{table}
+
+The greedy set $\cS_n$ is not optimal. An extremal set can use elements $p^aq$ with $a\ge2$ for small primes $p$, for which the prime $q$ removed from the sum is much smaller than $n/p$; this affects the term $n\sum_{p\le X}1/p$ in Theorem~\ref{thm:twosided}, which we have not tried to improve.
+
+\subsection{\texorpdfstring{The integral $I(n)$}{The integral I(n)}}
+Table~\ref{tab:sweep} lists $(H(n)-C(n))/n$, the integral $I(n)$, the maximum of $W_n$ on $(X,2X]$, and the integral of $W_n(u)\,\dd u/u$ over $[2X,n/2]$, in the ranges where we computed them. Table~\ref{tab:sample} gives the mean and the maximum of $I(n)$, and the maximum of $W_n$ on $(X,2X]$, over the $1000$ integers $n=N+jN/1000$, $1\le j\le1000$.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+\toprule
+$n$ & $(H(n)-C(n))/n$ & $I(n)$ & $\max W_n$ & $\int_{2X}^{n/2}W_n\,\dd u/u$\\
+\midrule
+$10^{4}$ & 2.369 & 0.385 & 2 & 0.099\\
+$10^{5}$ & 2.605 & 0.352 & 3 & 0.126\\
+$10^{6}$ & 2.743 & 0.343 & 3 & 0.126\\
+$10^{7}$ & 3.029 & 0.487 & 5 & 0.130\\
+$10^{8}$ & 3.249 & 0.579 & 6 & 0.128\\
+$10^{9}$ & 3.523 & 0.738 & 11 & \\
+$10^{10}$ & 3.733 & 0.844 & 14 & \\
+$10^{11}$ & & 0.816 & 15 & \\
+$10^{12}$ & & 0.996 & 25 & \\
+$10^{13}$ & & 1.089 & 47 & \\
+$10^{14}$ & & 1.099 & 49 & \\
+\bottomrule
+\end{tabular}
+\medskip
+\caption{The greedy deficit and the integrals of $W_n$.}\label{tab:sweep}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+$N$ & mean of $I(n)$ & maximum of $I(n)$ & maximum of $W_n$\\
+\midrule
+$10^{8}$ & 0.634 & 1.007 & 14\\
+$10^{10}$ & 0.833 & 1.119 & 32\\
+$10^{12}$ & 1.115 & 1.640 & 83\\
+$10^{14}$ & 1.280 & 1.768 & 168\\
+\bottomrule
+\end{tabular}
+\medskip
+\caption{Statistics of $I(n)$ over $1000$ equally spaced $n\in(N,2N]$.}\label{tab:sample}
+\end{table}
+
+In these ranges $I(n)$ is small and grows slowly, by about $0.2$ for each factor $100$ in $n$. This is what one expects if the primes near $X$ are modelled by a random set of density $1/\log X$: then $W_n(u)$ is the length of a queue whose arrival and service rates are in the ratio $(X/u)^2$, its typical size at $u=X(1+\tau)$ is of order $1/\tau$ once $\tau$ exceeds $X^{-1/3+\eps}$, and $I(n)$ is of order $\log n$. If $I(n)$ is indeed of order $\log n$, then Theorem~\ref{thm:twosided} shows that $H(n)-G(n)\gg n\log n$, in accordance with the statement of Erd\H{o}s \cite{Er84} that $(H(n)-G(n))/n\to\infty$. We have no proof of either bound for $I(n)$.
+
+\subsection*{Note on the preparation of this manuscript}
+This manuscript was prepared with AI systems. A first draft, containing the upper bounds of Corollary~\ref{cor:rh}(b),(c) for the greedy set, the deduction of \eqref{eq:question} from a pointwise bound of the form \eqref{eq:pointwise} and the example of Remark~\ref{rem:limit}, was written by GPT-6.2 Astra (OpenAI Codex). The lower bound of Section~\ref{sec:lower}, Theorems~\ref{thm:twosided} and~\ref{thm:ls}, the computations of $I(n)$ and of $G(10^6)$, the Lean formalisation and the present text are due to Claude (Anthropic).
+
+\begin{thebibliography}{Er84}
+\bibitem[Al]{Al} L.~Alp\"oge, \emph{Remark}, announcement of 20 November 2026, \url{https://alpo.ge/remark.pdf}.
+\bibitem[Bl]{Bl} T.~F.~Bloom, \emph{Erd\H{o}s Problem \#879}, \url{https://www.erdosproblems.com/879}, with the forum thread \url{https://www.erdosproblems.com/forum/thread/879}, accessed 25 November 2026.
+\bibitem[CHD]{CHD} M.~Cully-Hugill and A.~W.~Dudek, \emph{An explicit mean-value estimate for the PNT in intervals}, preprint, \href{https://arxiv.org/abs/2206.00433}{arXiv:2206.00433}.
+\bibitem[CMS]{CMS} E.~Carneiro, M.~B.~Milinovich and K.~Soundararajan, \emph{Fourier optimization and prime gaps}, Comment.\ Math.\ Helv.\ \textbf{94} (2019), 533--568.
+\bibitem[Cr]{Cr} H.~Cram\'er, \emph{Some theorems concerning prime numbers}, Ark.\ Mat.\ Astr.\ Fys.\ \textbf{15} (1920), no.~5, 1--33.
+\bibitem[Er84]{Er84} P.~Erd\H{o}s, \emph{On two unconventional number theoretic functions and on some related problems}, Calcutta Mathematical Society Diamond-cum-Platinum Jubilee Commemoration Volume (1908--1983), Part~I, Calcutta, 1984, 113--121.
+\bibitem[Er98]{Er98} P.~Erd\H{o}s, \emph{Some of my new and almost new problems and results in combinatorial number theory}, Number theory (Eger, 1996), de Gruyter, Berlin, 1998, 169--180.
+\bibitem[EvL]{EvL} P.~Erd\H{o}s and J.~H.~van Lint, \emph{Solution to Problem 623}, Nieuw Arch.\ Wisk.\ (4) \textbf{1} (1983), 81--82.
+\bibitem[LPZ]{LPZ} A.~Languasco, A.~Perelli and A.~Zaccagnini, \emph{An extension of the pair-correlation conjecture and applications}, Math.\ Res.\ Lett.\ \textbf{23} (2016), 201--220; \href{https://arxiv.org/abs/1308.3934}{arXiv:1308.3934}.
+\bibitem[RS]{RS} J.~B.~Rosser and L.~Schoenfeld, \emph{Approximate formulas for some functions of prime numbers}, Illinois J.\ Math.\ \textbf{6} (1962), 64--94.
+\bibitem[SV]{SV} B.~Saffari and R.~C.~Vaughan, \emph{On the fractional parts of $x/n$ and related sequences. II}, Ann.\ Inst.\ Fourier (Grenoble) \textbf{27} (1977), no.~2, 1--30.
+\bibitem[Sch]{Sch} L.~Schoenfeld, \emph{Sharper bounds for the Chebyshev functions $\theta(x)$ and $\psi(x)$. II}, Math.\ Comp.\ \textbf{30} (1976), 337--360.
+\bibitem[Se]{Se} A.~Selberg, \emph{On the normal density of primes in small intervals, and the difference between consecutive primes}, Arch.\ Math.\ Naturvid.\ \textbf{47} (1943), no.~6, 87--105.
+\bibitem[Su]{Su} A.~V.~Sutherland, \emph{Verification files for the Lean proof of the Riemann Hypothesis}, \url{https://math.mit.edu/~drew/grh/}, accessed 25 November 2026.
+\bibitem[Wh]{Wh} P.~White, \emph{Erd\H{o}s Problem \#879: working report}, Erd\H{o}s Problem a Day, July 2026, \url{https://www.erdosproblemaday.com/report/879}.
+\end{thebibliography}
+
+\end{document}
